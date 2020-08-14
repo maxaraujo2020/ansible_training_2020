@@ -1,0 +1,50 @@
+- name: Installing PIP
+  apt:
+    name:
+      - python-pip
+
+- name: Installing dependences of k8s modules
+  pip:
+    name:
+      - openshift
+      - PyYAML
+
+- name: Copying the application file to app v1
+  template: 
+    src: app-v1.yml.j2
+    dest: /opt/babiapp/app-v1.yml
+    owner: root
+    group: root
+    mode: 0644
+  register: copying_deploy_app_v1
+
+- name: Copying the application file to app v2
+  template:
+    src: app-v2.yml.j2
+    dest: /opt/babiapp/app-v2.yml
+    owner: root
+    group: root
+    mode: 0644
+  register: copying_deploy_app_v2
+
+- name: Deploy APP-V2
+  k8s:
+    state: present
+    namespace: default
+    src: /opt/babiapp/app-v2.yml
+
+- name: Scale down APP-V1
+  k8s:
+    state: present
+    namespace: default
+    src: /opt/babiapp/app-v1.yml
+
+- name: In 2 minutes the application v1 will be removed. Pres CTRL+C to cancel
+  pause:
+    minutes: 2
+
+- name: Removing APP-V1
+  k8s:
+    state: absent
+    namespace: default
+    src: /opt/babiapp/app-v1.yml 

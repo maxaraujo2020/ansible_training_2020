@@ -1,0 +1,30 @@
+- name: Creating directory of the application BABIAPP
+  file: path={{item}} state=directory
+  with_items:
+    - /opt/babiapp
+    - /opt/babiapp/conf
+    - /opt/babiapp/logs
+  register: creating_directory
+
+- name: Copying the deployment file from app to host
+  template:
+    src: app-v1.yml.j2
+    dest: /opt/babiapp/app-v1.yml
+    owner: root
+    group: root
+    mode: 0644
+  register: copying_template
+
+- name: Copying the service file from app to host
+  copy: src={{ item.src }} dest={{ item.dest }}
+  with_items:
+    - { src: 'service_app.yml', dest: '/opt/babiapp/service_app.yml' }
+  register: copying_service_file
+
+- name: Creating deployment of BABIAPP Application
+  shell: kubectl apply -f /opt/babiapp/app-v1.yml
+  register: deploy_app
+
+- name: Creating service of BABIAPP Application
+  shell: kubectl apply -f /opt/babiapp/service_app.yml
+  register: deploy_svc_app 

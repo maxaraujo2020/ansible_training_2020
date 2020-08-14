@@ -1,0 +1,9 @@
+---
+# vars file for creating_instances
+instance_type: t2.medium
+sec_group_name: training_ansible
+image: ami-0ac80df6eff0e70b5
+keypair: ansible-class
+region: us-east-1
+count: 3
+profile_name: ansible_training 
